@@ -25,7 +25,9 @@ class Investment(models.Model):
     )
 
     def __str__(self):
-        return f"{self.investor.name} - {self.amount} on {self.date}"
+        return (
+            f"Investor: {self.investor.name}, Amount: {self.amount}, Date: {self.date}"
+        )
 
 
 class Bill(models.Model):
