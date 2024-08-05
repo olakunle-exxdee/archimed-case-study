@@ -19,7 +19,9 @@ class Investment(models.Model):
     amount = models.DecimalField(
         max_digits=12, decimal_places=2, validators=[MinValueValidator(Decimal("0.01"))]
     )
-    date = models.DateField()
+    date = models.DateField(
+        auto_now_add=True, help_text="The date the investment was made"
+    )
     fee_percentage = models.DecimalField(
         max_digits=4, decimal_places=2, validators=[MinValueValidator(Decimal("0.01"))]
     )
@@ -62,7 +64,9 @@ class CapitalCall(models.Model):
         ("OVERDUE", "Overdue"),
     )
     investor = models.ForeignKey(
-        Investor, on_delete=models.CASCADE, related_name="capital_calls"
+        Investor,
+        on_delete=models.CASCADE,
+        related_name="capital_calls",
     )
     total_amount = models.DecimalField(max_digits=12, decimal_places=2)
     date = models.DateField()
