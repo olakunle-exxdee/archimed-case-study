@@ -10,9 +10,29 @@ class InvestorSerializer(serializers.ModelSerializer):
 
 
 class InvestmentSerializer(serializers.ModelSerializer):
+    email = serializers.CharField(write_only=True)
+
     class Meta:
         model = Investment
-        fields = "__all__"
+        fields = ["id", "amount", "date", "fee_percentage", "email"]
+
+    def create(self, validated_data):
+        investor_identifier = validated_data.pop("email")
+        try:
+            if "@" in investor_identifier:
+                investor = Investor.objects.get(email=investor_identifier)
+            else:
+                investor = Investor.objects.get(id=investor_identifier)
+        except Investor.DoesNotExist:
+            raise serializers.ValidationError("Investor not found")
+
+        investment = Investment.objects.create(investor=investor, **validated_data)
+        return investment
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation["investor"] = InvestorSerializer(instance.investor).data
+        return representation
 
 
 class BillSerializer(serializers.ModelSerializer):
@@ -20,7 +40,7 @@ class BillSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Bill
-        fields = ["id", "bill_type", "amount", "date", "investor"]
+        fields = "__all__"
 
 
 class CapitalCallSerializer(serializers.ModelSerializer):
@@ -29,4 +49,4 @@ class CapitalCallSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CapitalCall
-        fields = ["id", "total_amount", "status", "bills", "investor"]
+        fields = "__all__"
